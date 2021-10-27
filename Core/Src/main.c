@@ -93,6 +93,8 @@ int main(void)
   {
     /* USER CODE END WHILE */
 
+	  __ASM("NOP");
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
