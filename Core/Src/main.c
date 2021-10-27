@@ -94,6 +94,7 @@ int main(void)
     /* USER CODE END WHILE */
 
 	  __ASM("NOP");
+	  __ASM("NOP");
 
     /* USER CODE BEGIN 3 */
   }
