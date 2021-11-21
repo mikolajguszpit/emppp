@@ -117,7 +117,21 @@ extern "C" {
 
 
 /* Audio Commands enumeration */
+typedef enum
+{
+  AUDIO_CMD_START = 1,
+  AUDIO_CMD_PLAY,
+  AUDIO_CMD_STOP,
+} AUDIO_CMD_TypeDef;
 
+
+typedef enum
+{
+  AUDIO_OFFSET_NONE = 0,
+  AUDIO_OFFSET_HALF,
+  AUDIO_OFFSET_FULL,
+  AUDIO_OFFSET_UNKNOWN,
+} AUDIO_OffsetTypeDef;
 /**
   * @}
   */
