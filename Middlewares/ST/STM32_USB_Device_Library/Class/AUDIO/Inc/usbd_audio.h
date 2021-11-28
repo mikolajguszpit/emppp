@@ -140,7 +140,39 @@ typedef enum
 /** @defgroup USBD_CORE_Exported_TypesDefinitions
   * @{
   */
+typedef struct
+{
+  uint8_t cmd;
+  uint8_t data[USB_MAX_EP0_SIZE];
+  uint8_t len;
+  uint8_t unit;
+} USBD_AUDIO_ControlTypeDef;
 
+
+typedef struct
+{
+  uint32_t alt_setting;
+  uint8_t buffer[AUDIO_TOTAL_BUF_SIZE];
+  AUDIO_OffsetTypeDef offset;
+  uint8_t rd_enable;
+  uint16_t rd_ptr;
+  uint16_t wr_ptr;
+  int16_t in_buffer[AUDIO_IN_PACKET];
+  uint8_t in_buffer_half;
+  USBD_AUDIO_ControlTypeDef control;
+} USBD_AUDIO_HandleTypeDef;
+
+
+typedef struct
+{
+  int8_t (*Init)(uint32_t AudioFreq, uint32_t Volume, uint32_t options);
+  int8_t (*DeInit)(uint32_t options);
+  int8_t (*AudioCmd)(uint8_t *pbuf, uint32_t size, uint8_t cmd);
+  int8_t (*VolumeCtl)(uint8_t vol);
+  int8_t (*MuteCtl)(uint8_t cmd);
+  int8_t (*PeriodicTC)(uint8_t *pbuf, uint32_t size, uint8_t cmd);
+  int8_t (*GetState)(void);
+} USBD_AUDIO_ItfTypeDef;
 /**
   * @}
   */
