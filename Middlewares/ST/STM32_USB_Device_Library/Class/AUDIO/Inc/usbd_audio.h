@@ -188,7 +188,8 @@ typedef struct
 /** @defgroup USBD_CORE_Exported_Variables
   * @{
   */
-
+extern USBD_ClassTypeDef USBD_AUDIO;
+#define USBD_AUDIO_CLASS &USBD_AUDIO
 /**
   * @}
   */
@@ -196,7 +197,10 @@ typedef struct
 /** @defgroup USB_CORE_Exported_Functions
   * @{
   */
+uint8_t USBD_AUDIO_RegisterInterface(USBD_HandleTypeDef *pdev,
+                                     USBD_AUDIO_ItfTypeDef *fops);
 
+void USBD_AUDIO_Sync(USBD_HandleTypeDef *pdev, AUDIO_OffsetTypeDef offset);
 /**
   * @}
   */
