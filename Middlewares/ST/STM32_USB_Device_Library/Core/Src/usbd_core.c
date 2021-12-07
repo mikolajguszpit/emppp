@@ -625,7 +625,57 @@ USBD_StatusTypeDef USBD_LL_IsoINIncomplete(USBD_HandleTypeDef *pdev,
   * @param  pdev: device instance
   * @retval status
   */
+USBD_StatusTypeDef USBD_LL_IsoOUTIncomplete(USBD_HandleTypeDef *pdev,
+                                            uint8_t epnum)
+{
+  if (pdev->pClass == NULL)
+  {
+    return USBD_FAIL;
+  }
 
+  if (pdev->dev_state == USBD_STATE_CONFIGURED)
+  {
+    if (pdev->pClass->IsoOUTIncomplete != NULL)
+    {
+      (void)pdev->pClass->IsoOUTIncomplete(pdev, epnum);
+    }
+  }
+
+  return USBD_OK;
+}
+
+/**
+  * @brief  USBD_LL_DevConnected
+  *         Handle device connection event
+  * @param  pdev: device instance
+  * @retval status
+  */
+USBD_StatusTypeDef USBD_LL_DevConnected(USBD_HandleTypeDef *pdev)
+{
+  /* Prevent unused argument compilation warning */
+  UNUSED(pdev);
+
+  return USBD_OK;
+}
+
+/**
+  * @brief  USBD_LL_DevDisconnected
+  *         Handle device disconnection event
+  * @param  pdev: device instance
+  * @retval status
+  */
+USBD_StatusTypeDef USBD_LL_DevDisconnected(USBD_HandleTypeDef *pdev)
+{
+  /* Free Class Resources */
+  pdev->dev_state = USBD_STATE_DEFAULT;
+
+  if (pdev->pClass != NULL)
+  {
+    (void)pdev->pClass->DeInit(pdev, (uint8_t)pdev->dev_config);
+  }
+
+  return USBD_OK;
+}
 /**
   * @}
   */
