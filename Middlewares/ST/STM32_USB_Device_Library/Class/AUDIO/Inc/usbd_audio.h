@@ -26,6 +26,7 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
+#include  "usbd_ioreq.h"
 
 /** @addtogroup STM32_USB_DEVICE_LIBRARY
   * @{
@@ -177,6 +178,8 @@ typedef struct
   * @}
   */
 
+
+
 /** @defgroup USBD_CORE_Exported_Macros
   * @{
   */
@@ -188,6 +191,7 @@ typedef struct
 /** @defgroup USBD_CORE_Exported_Variables
   * @{
   */
+
 extern USBD_ClassTypeDef USBD_AUDIO;
 #define USBD_AUDIO_CLASS &USBD_AUDIO
 /**
