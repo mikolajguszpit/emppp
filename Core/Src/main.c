@@ -119,6 +119,83 @@ q31_t fir_state2[BLOCK_SIZE_FLOAT + FILTER_NUM - 1];
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 
+void HAL_I2S_RxHalfCpltCallback (I2S_HandleTypeDef *hi2s);
+void HAL_I2S_RxCpltCallback (I2S_HandleTypeDef *hi2s);
+void HAL_SPI_RxHalfCpltCallback(SPI_HandleTypeDef *hspi);
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi);
+
+void FifoWrite_Q31();
+uint16_t FifoRead_Q31();
+
+void FifoWrite_Q31_2();
+uint16_t FifoRead_Q31_2();
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
+
+
+void ADC_to_MIC(void){ //funkcja Call dla USB Audio
+
+	HAL_SPI_Receive_DMA(&hspi1, (uint8_t *)pdmRxBuf2, PDM_SIZE);
+	HAL_I2S_Receive_DMA(&hi2s2, &pdmRxBuf[0], PDM_SIZE/2);
+
+
+	LED4_ON();
+	HAL_TIM_Base_Start_IT(&htim14);
+	__HAL_TIM_SET_COUNTER(&htim14,0);
+
+	if(DMA_runn==1){
+		usbstate = 1;
+	}
+	else {
+		usbstate = 2;
+	}
+
+
+}
+
+
+void Zatrzymaj_DMA(){
+
+
+
+	fifo_w_ptr = fifo_r_ptr + 240;
+	if (fifo_w_ptr>BUFF_OGOLNY){fifo_w_ptr=fifo_w_ptr-BUFF_OGOLNY;}
+	fifo_w_ptr2 = fifo_w_ptr;
+
+	(GPIOD->ODR ^= (GPIO_PIN_15));
+
+}
+
+
+void Zatrzymaj_DMA_WatchDog(){
+
+	HAL_I2S_DMAStop(&hi2s2);
+	HAL_SPI_DMAStop(&hspi1);
+	//memset(&fifobuf_f_out, (uint8_t) 0, sizeof(fifobuf_f_out));
+	memset(&fifobuf_f, (uint8_t) 0, sizeof(fifobuf_f));
+	memset(&pdmRxBuf, (uint8_t) 0, sizeof(pdmRxBuf));
+	//memset(&fir_state1, (uint8_t) 0, sizeof(fir_state1));
+	arm_fir_init_q31(&firsetting1, FILTER_NUM, &filter_tab[0], &fir_state1[0], BLOCK_SIZE_FLOAT);
+
+	//memset(&fifobuf_f2_out, (uint8_t) 0, sizeof(fifobuf_f2_out));
+	memset(&fifobuf_f2, (uint8_t) 0, sizeof(fifobuf_f2));
+	memset(&pdmRxBuf2, (uint8_t) 0, sizeof(pdmRxBuf2));
+	//memset(&fir_state2, (uint8_t) 0, sizeof(fir_state2));
+	arm_fir_init_q31(&firsetting2, FILTER_NUM, &filter_tab[0], &fir_state2[0], BLOCK_SIZE_FLOAT);
+
+	fifo_w_ptr = 0;
+	fifo_r_ptr = 0;
+	fifo_w_ptr2 = 0;
+	fifo_r_ptr2 = 0;
+	rxstate = 0;
+	DMA_runn = 0;
+	usbstate = 2;
+	fir_w = 0;
+	LED1_OFF();
+	LED4_OFF();
+
+
+}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
