@@ -419,6 +419,76 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
+void HAL_SPI_RxHalfCpltCallback(SPI_HandleTypeDef *hspi){
+	//rxstate = 3;
+	//LED1_TOGGLE();
+}
+
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi){
+	//rxstate = 4;
+	//(GPIOD->ODR ^= (GPIO_PIN_15));
+}
+
+
+void HAL_I2S_RxHalfCpltCallback (I2S_HandleTypeDef *hi2s) {
+	if (hi2s->Instance==SPI2){
+	rxstate = 1;
+	}
+	//(GPIOD->ODR ^= (GPIO_PIN_15));
+}
+
+void HAL_I2S_RxCpltCallback (I2S_HandleTypeDef *hi2s) {
+	if (hi2s->Instance==SPI2){
+	rxstate = 2;
+	}
+}
+
+void FifoWrite_Q31() {
+	//if (fifo_w_ptr % BLOCK_SIZE_FLOAT == 0){fir_w = fifo_w_ptr;}
+	if (fifo_w_ptr == BUFF_OGOLNY) {fifo_w_ptr = 0;}
+	//fifobuf_f[fifo_w_ptr] = ((int) (*data<<16)|0x0000);
+	++fifo_w_ptr;
+	if(fifo_w_ptr==fifo_r_ptr){Zatrzymaj_DMA();}
+}
+
+uint16_t FifoRead_Q31() {
+	if (fifo_r_ptr == BUFF_OGOLNY) {fifo_r_ptr = 0;}
+	uint16_t val = ((fifobuf_f[fifo_r_ptr])>>16)&0xFFFF;
+	//fifobuf_f_out[fifo_r_ptr]=0;//0x7FFFFFFF;
+	++fifo_r_ptr;
+
+	return val;
+}
+
+void FifoWrite_Q31_2() {
+	if (fifo_w_ptr2 == BUFF_OGOLNY) {fifo_w_ptr2 = 0;}
+	//fifobuf_f2[fifo_w_ptr2] = ((int) (*data<<16)|0x0000);
+	++fifo_w_ptr2;
+	if(fifo_w_ptr2==fifo_r_ptr2){Zatrzymaj_DMA();}
+}
+
+uint16_t FifoRead_Q31_2() {
+	if (fifo_r_ptr2 == BUFF_OGOLNY) {fifo_r_ptr2 = 0;}
+	uint16_t val = ((fifobuf_f2[fifo_r_ptr2])>>16)&0xFFFF;
+	//fifobuf_f_out[fifo_r_ptr]=0;//0x7FFFFFFF;
+	++fifo_r_ptr2;
+
+	return val;
+}
+
+
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  // Check which version of the timer triggered this callback and toggle LED
+  if (htim->Instance == TIM14 )
+  {
+	  Zatrzymaj_DMA_WatchDog();
+	  HAL_TIM_Base_Stop_IT(&htim14);
+	  __HAL_TIM_SET_COUNTER(&htim14,0);
+  }
+}
+
 /* USER CODE END 4 */
 
 /**
