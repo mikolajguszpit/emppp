@@ -31,6 +31,11 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include "usbd_audio_if.h"
+#define ARM_MATH_CM4
+#include "arm_math.h"
+#include "bosz.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -40,6 +45,12 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
+#define BUFF_OGOLNY 480
+#define FILTER_NUM 82
+#define BLOCK_SIZE_FLOAT 48
+#define PDM_SIZE 384
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -50,6 +61,57 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+
+uint16_t pdmRxBuf[PDM_SIZE];
+uint16_t pdmRxBuf2[PDM_SIZE];
+extern USBD_HandleTypeDef hUsbDeviceFS;
+
+uint16_t MidBuffer[PDM_SIZE/8];
+uint16_t * ptr_MidBuffer = &MidBuffer[0];
+
+q31_t MidBuffer_1[PDM_SIZE/8];
+q31_t MidBuffer_2[PDM_SIZE/8];
+
+uint8_t rxstate = 0;
+uint16_t usbstate = 0;
+
+uint8_t DMA_runn = 0;
+uint16_t fir_w = 0;
+
+q31_t fifobuf_f[BUFF_OGOLNY];
+q31_t fifobuf_f2[BUFF_OGOLNY];
+
+uint16_t fifo_w_ptr = 0;
+uint16_t fifo_r_ptr = 0;
+
+uint16_t fifo_w_ptr2 = 0;
+uint16_t fifo_r_ptr2 = 0;
+
+int16_t diffrent = 0;
+uint16_t licznik = 0;
+
+
+q31_t filter_tab[FILTER_NUM]={
+	     -29713931,    -1635910,     2131509,    -2941912,     4005173,    -5250669,
+	       6591543,    -7930096,     9158950,   -10166461,    10840805,   -11075856,
+	      10776764,    -9865628,     8287330,    -6013730,     3048806,      570251,
+	      -4768478,     9438571,   -14406657,    19577807,   -24598702,    29310608,
+	     -33430069,    36670039,   -38729859,    39301807,   -38069546,    34706520,
+	     -28864852,    20153421,    -8093191,    -7968794,    29029755,   -56792706,
+	      94509382,  -149271075,   239781175,  -435214886,  1360236750,  1360236750,
+	    -435214886,   239781175,  -149271075,    94509382,   -56792706,    29029755,
+	      -7968794,    -8093191,    20153421,   -28864852,    34706520,   -38069546,
+	      39301807,   -38729859,    36670039,   -33430069,    29310608,   -24598702,
+	      19577807,   -14406657,     9438571,    -4768478,      570251,     3048806,
+	      -6013730,     8287330,    -9865628,    10776764,   -11075856,    10840805,
+	     -10166461,     9158950,    -7930096,     6591543,    -5250669,     4005173,
+	      -2941912,     2131509,    -1635910,   -29713931
+	}; //od22k-do23.5k-dla48kHz //82
+
+arm_fir_instance_q31 firsetting1, firsetting2;
+
+q31_t fir_state1[BLOCK_SIZE_FLOAT + FILTER_NUM - 1];
+q31_t fir_state2[BLOCK_SIZE_FLOAT + FILTER_NUM - 1];
 
 /* USER CODE END PV */
 
